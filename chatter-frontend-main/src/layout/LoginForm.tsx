@@ -3,6 +3,12 @@ import React, { useState } from 'react';
 import FormData from 'form-data';
 import Link from 'next/link';
 import { LoginData } from '../types/login';
+import apiClient from '../utils/client';
+import { useRouter } from 'next/dist/client/router';
+import { useAppDispatch } from '../redux/hooks';
+import { setLoginData } from '../redux/userSlice';
+import { setToke } from '../utils/storageToken';
+import { NotificationFailure, NotificationSuccess } from '../components/Notifications';
 
 function LoginForm() {
   const initialValues: LoginData = {
@@ -12,6 +18,10 @@ function LoginForm() {
 
   const [formData, setFormData] = useState<LoginData>(initialValues);
   const data = new FormData();
+
+  const dispatch = useAppDispatch();
+
+  const router = useRouter()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -27,6 +37,20 @@ function LoginForm() {
       1. Check login
       2. Handle errors (if there is at least one) 
     */
+    apiClient
+      .post('/login', data)
+      .then((res) => {
+        dispatch(
+          setLoginData({
+            userId: res.data.userId,
+            authToken: res.data.token
+          })
+        )
+        setToke(res.data.token)
+        NotificationSuccess(res.data.message)
+        router.push('/chat')
+      })
+      .catch((error) => NotificationFailure(error.response.data.message))
   };
 
   const resetForm = () => {
