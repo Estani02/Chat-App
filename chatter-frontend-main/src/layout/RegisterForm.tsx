@@ -4,6 +4,9 @@ import FormData from 'form-data';
 
 import { RegisterData } from '../types/register';
 import Field from '../components/Home/Field';
+import apiClient from '../utils/client';
+import { useRouter } from 'next/dist/client/router';
+import { NotificationFailure, NotificationSuccess } from '../components/Notifications';
 
 function Register() {
   const initialValues: RegisterData = {
@@ -18,6 +21,8 @@ function Register() {
   const hiddenFileInput = useRef<HTMLInputElement>(null);
 
   const data = new FormData();
+
+  const router = useRouter()
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files != null) {
@@ -47,6 +52,13 @@ function Register() {
       1. Make a new user
       2. Display a sucess notification (or error).
     */
+    apiClient
+      .post('/signup', data)
+      .then((res) => {
+        NotificationSuccess(res.data.message)
+        router.push('/')
+      })
+      .catch((error) => NotificationFailure(error.response.data.message))
   };
 
   return (
