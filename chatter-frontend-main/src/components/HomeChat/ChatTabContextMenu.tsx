@@ -19,15 +19,24 @@ const Item = styled(Menu.Item)`
   }
 `;
 
-export default function ChatTabContextMenu() {
+interface Props {
+  showTicket: Function;
+  setDataTicket: Function;
+}
+
+export default function ChatTabContextMenu(props: Props) {
+  const { showTicket, setDataTicket } = props;
+
   const handleShowOpenTicket = () => {
-    console.log('Opened ticket...');
     // TODO: Show open ticket component.
+    showTicket();
+    setDataTicket(0);
   };
 
   const handleShowClosedTicket = () => {
-    console.log('Closed ticket...');
     // TODO: Show closed ticket component.
+    showTicket();
+    setDataTicket(1);
   };
 
   return (

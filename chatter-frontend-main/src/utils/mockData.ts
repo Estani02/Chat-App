@@ -7,8 +7,8 @@ import { TicketPriority, TicketStatus, TicketData } from '../types/chat';
  */
 export const MockTicketData: TicketData[] = [
   {
-    title: 'Error de pantalla',
-    description: 'Me surge un error en la pantalla del monitor que compré hace unos días',
+    title: 'Error en el enchufe',
+    description: 'Una pata del enchufe esta deformada',
     brand: 'Fravega',
     tag: 'Soporte',
     id: '002654698',

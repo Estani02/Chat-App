@@ -111,3 +111,9 @@ export interface TicketData {
   priority: TicketPriority;
   status: TicketStatus;
 }
+
+export interface TicketModalProps {
+  index: number;
+  isOpen: boolean;
+  setIsOpen: Function;
+}

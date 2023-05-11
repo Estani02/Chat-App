@@ -6,7 +6,7 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { ChatTabProps } from '../../types/chat';
 import ConfirmDialog from '../ConfirmDialog';
 import ContextMenu from '../ContextMenu';
-import ChatTabContextMenu from './ChatTabContextMenu';
+import apiClient from '../../utils/client';
 
 const Container = styled.div<{ isSelected: boolean }>`
   display: flex;
@@ -109,6 +109,7 @@ function ChatTab(chatTabProps: ChatTabProps) {
       TODO: 
       1. Delete chat
     */
+    apiClient.delete(`/chats/${chatId}`);
   };
 
   const handleOpenModal = () => {
@@ -116,11 +117,11 @@ function ChatTab(chatTabProps: ChatTabProps) {
   };
 
   return (
-    <ContextMenu menuComponent={<ChatTabContextMenu />}>
+    <ContextMenu>
       <Container id="chatTab" isSelected={selectedChat === chatId} onClick={onClick}>
         <Wrapper>
           <ChatPhoto>
-            <img src={`${photo}`} alt="ProfilePhoto" className="image" />
+            <img src={`http://localhost:8080/${photo}`} alt="ProfilePhoto" className="image" />
           </ChatPhoto>
           <ChatInfo>
             <ChatInfoWrapper>

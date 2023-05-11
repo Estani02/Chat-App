@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSmile, faPaperPlane } from '@fortawesome/free-regular-svg-icons';
@@ -7,14 +8,18 @@ import { HiPhoneMissedCall } from 'react-icons/hi';
 import empty from '../assets/images/empty.png';
 import MyProfile from '../components/MyProfile';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { getUser } from '../redux/userSlice';
+import { getUser, setUserData } from '../redux/userSlice';
 import { Chat, LogoType } from '../types/chat';
-import { getChats, setIsAllowedExpand } from '../redux/chatsSlice';
+import { getChats, setChatsData, setIsAllowedExpand } from '../redux/chatsSlice';
 import ChatHeader from '../components/HomeChat/ChatHeader';
 import ConfigDropdown from '../layout/Dropdowns/Config';
 import SearchBar from '../components/SearchBar';
 import ChatTab from '../components/HomeChat/ChatTab';
 import ChatMessages from '../components/HomeChat/ChatMessages';
+import { getToken } from '../utils/storageToken';
+import apiClient from '../utils/client';
+import { io } from 'socket.io-client';
+import { NotificationFailure } from '../components/Notifications';
 
 function HomeChat() {
   const chatHeaderInitialState: Chat = {
@@ -40,12 +45,31 @@ function HomeChat() {
 
   const logo = empty as unknown as LogoType;
 
+  const token = getToken()
+
+  const socket = io('http://localhost:8080');
+
   useEffect(() => {
     /* 
       TODO: 
       1. Get user data 
       2. Get chats data
     */
+    token &&
+      apiClient
+        .get('/users')
+        .then(({ data }) => {
+          const user = {
+            email: data.email,
+            photo: data.image,
+            lastName: data.lastName,
+            name: data.name,
+            userId: data.userId
+          }
+          dispatch(setChatsData(data.chats))
+          dispatch(setUserData(user))
+        })
+        .catch((error) => NotificationFailure(error.response.data.message))
   }, []);
 
   useEffect(() => {
@@ -62,8 +86,13 @@ function HomeChat() {
           2. Get chat data
           3. Set the socket off and return void to prevent useless renders
       */
+      socket.on('chats', getChatsData);
+
+      return () => {
+        socket.off('chats', getChatsData);
+      };
     }
-  }, [chats]);
+  }, []);
 
   const handleMsgEntry = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMsgEntry(e.target.value);
@@ -71,15 +100,17 @@ function HomeChat() {
 
   const handleSendMsg = () => {
     if (msgEntry !== '') {
-      setMsgEntry('');
       /*
-        TODO:
-        1. Send message
+      TODO:
+      1. Send message
       */
+      apiClient.post(`/chats/${selectedChat}`, { message: msgEntry })
+      setMsgEntry('')
     } else {
       /* TODO: 
         1. Show error notification
       */
+      NotificationFailure('Message cannot be sent')
     }
   };
 
@@ -101,6 +132,12 @@ function HomeChat() {
     /* TODO: 
       Get all chats data 
     */
+    apiClient
+      .get('/chats')
+      .then((response) => {
+        dispatch(setChatsData(response.data.chats))
+      })
+      .catch((error) => NotificationFailure(error.response.data.message))
   };
 
   return (
@@ -133,7 +170,7 @@ function HomeChat() {
               <ChatTab
                 key={i}
                 name={tab.name}
-                image={tab.photo}
+                image={tab.image}
                 chatId={tab.chatId}
                 messages={tab.messages}
                 userData={userData}

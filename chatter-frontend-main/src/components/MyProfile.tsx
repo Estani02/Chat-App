@@ -6,7 +6,7 @@ function MyProfile(myProfileProps: MyProfileProps) {
   return (
     <div className="myProfile d-flex flex-row gap-3 align-items-center text-no-selection">
       <div className="myProfilePhoto">
-        <img src={photo} alt="ProfilePhoto" className="image" />
+        <img src={`http://localhost:8080/${photo}`} alt="ProfilePhoto" className="image" />
       </div>
       <div className="myProfileData">
         <div className="myProfileId fw-bold">
